@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap-3.3.7.css">
+    <script src="./lib/vue-2.4.0(1).js"></script>
+</head>
+<body>
+    <div id="app">
+        
+        
+        
+        <div class="panel panel-info">
+              <div class="panel-heading">
+                    <h3 class="panel-title">品牌管理</h3>
+              </div>
+              <div class="panel-body form-inline">
+                  <label>
+                    ID: <input type="text" class="form-control" v-model='id'>
+                    Name: <input type="text" class="form-control" v-model='name' @keyup.enter='add' v-focus v-color="'blue'">
+                    <input type="button" class="btn btn-primary" value="添加" @click='add(index)'>
+                    搜索: <input type="text" class="form-control" v-model='keywords'>
+                  </label>  
+              </div>
+        </div>
+        
+        
+        <!-- 表格 -->
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>ctime</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 遍历对象 对象的返回值是list -->
+                <tr v-for='(item,index) in search(keywords)'>
+                    <td>{{item.id}}</td>
+                    <td v-color="'purple'">{{item.name}}</td>
+                    <td>{{item.ctime | timeFormat}}</td>
+                    <td @click='del(index)'><a href="#">delete</a></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        
+        
+    </div>
+</body>
+<script>
+    //时间格式化
+    Vue.filter('timeFormat',function(data){
+        var dt = new Date();
+        var year = dt.getFullYear();
+        //padStard(maxlength,fillstring) 补0操作
+        //        maxlength--填充长度  fillstring 填充内容
+        var month = (dt.getMonth()+1).toString().padStart(2,0);
+        var date = (dt.getDate()).toString().padStart(2,0);
+        var hour = (dt.getHours()).toString().padStart(2,0);
+        var min = (dt.getMinutes()).toString().padStart(2,0);
+        var sec = (dt.getSeconds()).toString().padStart(2,0);
+
+        
+        /* month = month>=10?month:'0'+month;
+        date = date>=10?date:'0'+date;
+        hour = hour>=10?hour:'0'+hour;
+        min = min>=10?min:'0'+min;
+        sec = sec>=10?sec:'0'+sec; 
+        sec = sec>=10?sec:'0'+sec; */
+        return `${year}-${month}-${date}  ${hour}:${min}:${sec}`
+    })
+
+    //配置键码值
+    // Vue.config.keyCodes.f2 = 113
+
+    //全局自定义指令
+    Vue.directive('focus',{
+        //钩子--函数
+        bind:function(el,binding){
+            
+        },
+        inserted:function(el,binding){
+            el.focus()
+        },
+        update:function(el,binding){
+
+        }
+    })
+
+    Vue.directive('color',{
+        bind:function(el,binding){
+            el.style.color=binding.value
+        },
+        inserted:function(el,binding){
+            
+        },
+        update:function(el,binding){
+
+        }
+    })
+
+    //调度层
+    var vm = new Vue({
+        el:'#app',
+        data:{
+            id:'',
+            name:'',
+            ctime:'',
+            index:'',
+            keywords:'',
+            list:[
+                {id:1,name:'华为',ctime:new Date()},
+                {id:2,name:'苹果',ctime:new Date()},
+                {id:3,name:'vivo',ctime:new Date()}
+            ]
+        },
+        methods:{
+            add(){
+                this.list.push({id:this.id,name:this.name,ctime:new Date()})
+            },
+            //删除操作
+            /* del(index){
+                for(let i = 0; i < this.list.length; i++){
+                    if(i == index){
+                        this.list.splice(i,1)
+                    }
+                }
+            } */
+            //删除操作
+            del(index){
+                this.list.some((item,i)=>{
+                    if(i == index){
+                        //截取字符串
+                        this.list.splice(i,1)
+                    }
+                })
+            },
+            search(keywords){
+                //filter 返回是一个数组
+                return this.list.filter(item=>{
+                    //includes()  参数是看数组中是否有这个值----方法用来判断一个数组是否包含一个指定的值，如果是返回 true，否则false
+                    if(item.name.includes(keywords)){
+                        return item
+                    }
+                })
+            }
+        },
+
+        //定义私有指令
+        directives:{
+            color:function(el,binding){
+                el.style.color = binding.value
+            }
+        }
+    })
+</script>
+</html>
